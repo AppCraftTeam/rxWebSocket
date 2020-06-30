@@ -1,11 +1,14 @@
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 group = 'com.github.navinilavarasan'
-version = '1.01'
+version = '2.0.0'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -14,9 +17,9 @@ android {
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 28
-        versionCode 104
-        versionName "1.04"
+        targetSdkVersion 29
+        versionCode 105
+        versionName "2.0.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -27,12 +30,19 @@ android {
             consumerProguardFile 'proguard-rules.pro'
         }
     }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
 }
 
 dependencies {
-    implementation 'io.reactivex.rxjava2:rxjava:2.1.7'
-    implementation 'com.squareup.okhttp3:okhttp:3.12.0'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.11'
+    implementation 'com.squareup.okhttp3:okhttp:4.4.0'
     implementation 'org.jetbrains:annotations:16.0.1'
 
     testImplementation 'junit:junit:4.12'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+}
+repositories {
+    mavenCentral()
 }

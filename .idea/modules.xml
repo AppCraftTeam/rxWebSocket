@@ -2,8 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Documents-rxWebSocket.iml" filepath="$PROJECT_DIR$/.idea/modules/Documents-rxWebSocket.iml" group="rxWebSocket" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rxwebsocket/com.github.navinilavarasan-rxwebsocket.iml" filepath="$PROJECT_DIR$/.idea/modules/rxwebsocket/com.github.navinilavarasan-rxwebsocket.iml" group="rxWebSocket/rxwebsocket" />
       <module fileurl="file://$PROJECT_DIR$/rxWebSocket.iml" filepath="$PROJECT_DIR$/rxWebSocket.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/rxWebSocket-app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/rxWebSocket-app.iml" group="rxWebSocket/app" />
       <module fileurl="file://$PROJECT_DIR$/rxwebsocket/rxwebsocket.iml" filepath="$PROJECT_DIR$/rxwebsocket/rxwebsocket.iml" />
     </modules>
   </component>

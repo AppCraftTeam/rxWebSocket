@@ -6,17 +6,14 @@ import com.navin.flintstones.rxwebsocket.WebSocketConverter
 import java.io.IOException
 import java.io.StringReader
 
-class GsonResponseConvertor<T : Any>(
+open class GsonResponseConvertor<T : Any>(
         private val gson: Gson,
         private val adapter: TypeAdapter<T>
 ) : WebSocketConverter<String, T> {
     @Throws(IOException::class)
-    override fun convert(value: String): T {
-        val jsonReader = gson.newJsonReader(StringReader(value))
-        return try {
-            adapter.read(jsonReader)
-        } finally {
-            jsonReader.close()
-        }
-    }
+    override fun convert(value: String): T = gson
+            .newJsonReader(StringReader(value))
+            .use { jsonReader ->
+                adapter.read(jsonReader)
+            }
 }

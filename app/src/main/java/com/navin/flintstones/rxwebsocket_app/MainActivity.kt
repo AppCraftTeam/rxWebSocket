@@ -11,7 +11,9 @@ import butterknife.ButterKnife
 import butterknife.OnClick
 import com.navin.flintstones.rxwebsocket.RxWebsocket
 import com.navin.flintstones.rxwebsocket.RxWebsocket.*
+import com.navin.flintstones.rxwebsocket.WebSocketEvent
 import com.navin.flintstones.rxwebsocket.WebSocketInterceptor
+import com.navin.flintstones.rxwebsocket.listenData
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.Consumer
 import io.reactivex.internal.functions.Functions
@@ -32,6 +34,7 @@ class MainActivity : Activity() {
     lateinit var recdMessage: TextView
 
     private var websocket: RxWebsocket? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -64,29 +67,31 @@ class MainActivity : Activity() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext { event ->
                     when (event) {
-                        is Open -> {
+                        is WebSocketEvent.Open -> {
                             log("CONNECTED")
                             logNewLine()
                         }
-                        is Closed -> {
+                        is WebSocketEvent.Closed -> {
                             log("DISCONNECTED")
                             logNewLine()
                         }
-                        is QueuedMessage<*> -> {
+                        is WebSocketEvent.QueuedMessage<*> -> {
                             log("[MESSAGE QUEUED]:" + event.message().toString())
                             logNewLine()
                         }
-                        is Message -> {
+                        is WebSocketEvent.Message<*> -> {
                             try {
-                                log("[DE-SERIALIZED MESSAGE RECEIVED]:" + event.data(SampleDataModel::class.java).toString())
-                                log(String.format("[DE-SERIALIZED MESSAGE RECEIVED][id]:%d", event.data(SampleDataModel::class.java).id))
-                                log(String.format(
-                                        "[DE-SERIALIZED MESSAGE RECEIVED][message]:%s",
-                                        event.data(SampleDataModel::class.java).message
-                                ))
-                                logNewLine()
+                                (event as? WebSocketEvent.Message<SampleDataModel>)?.run {
+                                    log("[DE-SERIALIZED MESSAGE RECEIVED]:" + data(SampleDataModel::class.java).toString())
+                                    log(String.format("[DE-SERIALIZED MESSAGE RECEIVED][id]:%d", data(SampleDataModel::class.java)?.id))
+                                    log(String.format(
+                                            "[DE-SERIALIZED MESSAGE RECEIVED][message]:%s",
+                                            event.data(SampleDataModel::class.java)?.message
+                                    ))
+                                    logNewLine()
+                                }
                             } catch (throwable: Throwable) {
-                                log("[MESSAGE RECEIVED]:" + event.data())
+                                log("[MESSAGE RECEIVED]:" + event.data)
                                 logNewLine()
                             }
                         }
@@ -94,6 +99,7 @@ class MainActivity : Activity() {
                 }
                 .subscribeOn(Schedulers.io())
                 .subscribe(Functions.emptyConsumer(), Consumer { throwable: Throwable -> logError(throwable) })
+
     }
 
     private fun logNewLine() {
@@ -122,7 +128,13 @@ class MainActivity : Activity() {
         websocket!!.connect()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        { event: Open -> Log.d(MainActivity::class.java.simpleName, event.toString()) }) { throwable: Throwable -> logError(throwable) }
+                        { event: WebSocketEvent.Open ->
+                            Log.d(MainActivity::class.java.simpleName, event.toString())
+                        },
+                        { throwable: Throwable ->
+                            logError(throwable)
+                        }
+                )
     }
 
     @SuppressLint("CheckResult")
@@ -132,7 +144,13 @@ class MainActivity : Activity() {
             websocket!!.disconnect(1000, "Disconnect")
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
-                            { event: Closed -> Log.d(MainActivity::class.java.simpleName, event.toString()) }) { throwable: Throwable -> logError(throwable) }
+                            { event: WebSocketEvent.Closed ->
+                                Log.d(MainActivity::class.java.simpleName, event.toString())
+                            },
+                            { throwable: Throwable ->
+                                logError(throwable)
+                            }
+                    )
         }
     }
 
@@ -141,10 +159,16 @@ class MainActivity : Activity() {
     fun onSend() {
         if (websocket != null) {
             websocket!!
-                    .send(sendMessage!!.text.toString())
+                    .send(sendMessage.text.toString())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
-                            { event: QueuedMessage<*> -> Log.d(MainActivity::class.java.simpleName, event.toString()) }) { throwable: Throwable -> logError(throwable) }
+                            { event: WebSocketEvent.QueuedMessage<*> ->
+                                Log.d(MainActivity::class.java.simpleName, event.toString())
+                            },
+                            { throwable: Throwable ->
+                                logError(throwable)
+                            }
+                    )
         }
     }
 
@@ -156,7 +180,13 @@ class MainActivity : Activity() {
                     .send(SampleDataModel(1, "sample object"))
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
-                            { event: QueuedMessage<*> -> Log.d(MainActivity::class.java.simpleName, event.toString()) }) { throwable: Throwable -> logError(throwable) }
+                            { event: WebSocketEvent.QueuedMessage<*> ->
+                                Log.d(MainActivity::class.java.simpleName, event.toString())
+                            },
+                            { throwable: Throwable ->
+                                logError(throwable)
+                            }
+                    )
         }
     }
 
